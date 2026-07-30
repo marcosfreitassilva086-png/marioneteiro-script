@@ -1,70 +1,73 @@
 -- ==========================================
--- 🎭 MARIONETEIRO — VERSÃO COMPATÍVEL COM DELTA
--- SEM DRAWING | AIMBOT + FOV + ESP + MOVIMENTO
+-- 🎭 MARIONETEIRO — VERSÃO LAYOUT AVANÇADO
+-- ABAS / INTERRUPTORES / BARRAS / ROXO
 -- ==========================================
 
--- ✅ ESPERA O JOGO CARREGAR COMPLETO
+-- ✅ ESPERA CARREGAR
 repeat task.wait(0.1) until game:IsLoaded() and game.Players.LocalPlayer
-print("🎭 MARIONETEIRO CARREGOU COM SUCESSO!")
+print("🎭 MARIONETEIRO CARREGOU!")
 
 game:GetService("StarterGui"):SetCore("SendNotification",{
     Title = "🎭 MARIONETEIRO",
-    Text = "Painel pronto — compatível com Delta!",
-    Duration = 4
+    Text = "Novo layout carregado!",
+    Duration = 3
 })
 
--- 🔹 SERVIÇOS OBRIGATÓRIOS
+-- 🔹 SERVIÇOS
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
+local UIS = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local GuiPrincipal = game.CoreGui
 
--- 🔹 PROTEÇÃO BÁSICA
-local function Tentar(funcao) pcall(funcao) end
+-- 🔹 PROTEÇÃO
+local function Tentar(f) pcall(f) end
 
 -- 🔹 CONFIGURAÇÕES
 local Config = {
-    AimbotLigado = false,
+    AbaAtual = 1,
+    Aimbot = false,
     Suavidade = 0.25,
     FOV = 120,
     Velocidade = 16,
-    VelocidadeMax = 32,
     Salto = 50,
-    SaltoMax = 120,
-    ESPLigado = false,
-    IgnorarAliados = true
+    ESP = false,
+    ESP_Nome = true,
+    ESP_Vida = true,
+    ESP_Distancia = true
 }
-local VelocidadeOriginal = 16
-local SaltoOriginal = 50
+local OrigemVel = 16
+local OrigemSalto = 50
 local ListaEtiquetas = {}
 
--- 🔹 INTERFACE
+-- 🔹 TELA PRINCIPAL
 local Tela = Instance.new("ScreenGui")
-Tela.Name = "MarioneteiroMenu"
+Tela.Name = "Marioneteiro"
 Tela.Parent = GuiPrincipal
 Tela.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Tela.ResetOnSpawn = false
 
--- BOTÃO FLUTUANTE ROXO
-local BotaoAbrir = Instance.new("TextButton")
-BotaoAbrir.Parent = Tela
-BotaoAbrir.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
-BotaoAbrir.Position = UDim2.new(0.02,0,0.45,0)
-BotaoAbrir.Size = UDim2.new(0, 60, 0, 60)
-BotaoAbrir.Font = Enum.Font.GothamBold
-BotaoAbrir.Text = "🎭"
-BotaoAbrir.TextColor3 = Color3.new(1,1,1)
-BotaoAbrir.TextScaled = true
-BotaoAbrir.Active = true
-BotaoAbrir.Draggable = true
+-- BOTÃO ABRIR/FECHAR
+local BtnAbrir = Instance.new("TextButton")
+BtnAbrir.Parent = Tela
+BtnAbrir.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
+BtnAbrir.Position = UDim2.new(0.02,0,0.4,0)
+BtnAbrir.Size = UDim2.new(0,55,0,55)
+BtnAbrir.Font = Enum.Font.GothamBold
+BtnAbrir.Text = "🎭"
+BtnAbrir.TextColor3 = Color3.new(1,1,1)
+BtnAbrir.TextScaled = true
+BtnAbrir.Active = true
+BtnAbrir.Draggable = true
 
--- PAINEL NO MEIO
+-- PAINEL PRINCIPAL
 local Painel = Instance.new("Frame")
 Painel.Parent = Tela
-Painel.BackgroundColor3 = Color3.fromRGB(22, 16, 32)
-Painel.BorderColor3 = Color3.fromRGB(138, 43, 226)
-Painel.Position = UDim2.new(0.5, -150, 0.5, -210)
-Painel.Size = UDim2.new(0, 300, 0, 420)
+Painel.BackgroundColor3 = Color3.fromRGB(18,12,28)
+Painel.BorderColor3 = Color3.fromRGB(138,43,226)
+Painel.Position = UDim2.new(0.5,-180,0.5,-200)
+Painel.Size = UDim2.new(0,360,0,400)
 Painel.Visible = false
 Painel.Active = true
 Painel.Draggable = true
@@ -73,151 +76,231 @@ Painel.Draggable = true
 local Titulo = Instance.new("TextLabel")
 Titulo.Parent = Painel
 Titulo.BackgroundTransparency = 1
-Titulo.Position = UDim2.new(0,10,0,10)
-Titulo.Size = UDim2.new(1,-20,0,35)
+Titulo.Position = UDim2.new(0,0,0,10)
+Titulo.Size = UDim2.new(1,0,0,35)
 Titulo.Font = Enum.Font.GothamBold
 Titulo.Text = "🎭 MARIONETEIRO — BLOX FRUITS"
-Titulo.TextColor3 = Color3.fromRGB(186, 85, 211)
+Titulo.TextColor3 = Color3.fromRGB(200,140,255)
 Titulo.TextScaled = true
 
--- ÁREA DE BOTÕES
-local AreaFuncoes = Instance.new("ScrollingFrame")
-AreaFuncoes.Parent = Painel
-AreaFuncoes.BackgroundTransparency = 1
-AreaFuncoes.Position = UDim2.new(0,10,0,55)
-AreaFuncoes.Size = UDim2.new(1,-20,1,-65)
-AreaFuncoes.ScrollBarThickness = 6
+-- MENU DE ABAS LATERAL
+local MenuAbas = Instance.new("Frame")
+MenuAbas.Parent = Painel
+MenuAbas.BackgroundColor3 = Color3.fromRGB(30,20,45)
+MenuAbas.Position = UDim2.new(0,10,0,55)
+MenuAbas.Size = UDim2.new(0,90,1,-65)
 
-local Layout = Instance.new("UIListLayout")
-Layout.Parent = AreaFuncoes
-Layout.Padding = UDim.new(0, 8)
-Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+local AreaConteudo = Instance.new("Frame")
+AreaConteudo.Parent = Painel
+AreaConteudo.BackgroundTransparency = 1
+AreaConteudo.Position = UDim2.new(0,110,0,55)
+AreaConteudo.Size = UDim2.new(1,-120,1,-65)
 
--- 🔹 CRIAR BOTÃO
-local function CriarBotao(Nome, Funcao)
-    Tentar(function()
-        local Botao = Instance.new("TextButton")
-        Botao.Parent = AreaFuncoes
-        Botao.BackgroundColor3 = Color3.fromRGB(55, 35, 85)
-        Botao.Size = UDim2.new(0, 260, 0, 38)
-        Botao.Font = Enum.Font.Gotham
-        Botao.Text = Nome
-        Botao.TextColor3 = Color3.fromRGB(220, 180, 255)
-        Botao.TextScaled = true
-        Botao.MouseButton1Click:Connect(Funcao)
-        task.wait(0.1)
-        AreaFuncoes.CanvasSize = UDim2.new(0,0,0, Layout.AbsoluteContentSize.Y + 20)
+local ListaAbas = {"Geral", "Combate", "ESP", "Mais"}
+local BotoesAbas = {}
+local Conteudos = {}
+
+-- 🔹 FUNÇÃO CRIAR INTERRUPTOR
+local function CriarSwitch(Pai, Texto, ValorInicial, Callback)
+    local Linha = Instance.new("Frame")
+    Linha.Parent = Pai
+    Linha.BackgroundTransparency = 1
+    Linha.Size = UDim2.new(1,0,0,30)
+
+    local TextoLbl = Instance.new("TextLabel")
+    TextoLbl.Parent = Linha
+    TextoLbl.BackgroundTransparency = 1
+    TextoLbl.Position = UDim2.new(0,5,0,0)
+    TextoLbl.Size = UDim2.new(0.7,0,1,0)
+    TextoLbl.Font = Enum.Font.Gotham
+    TextoLbl.Text = Texto
+    TextoLbl.TextColor3 = Color3.fromRGB(220,180,255)
+    TextoLbl.TextScaled = true
+    TextoLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    local Caixa = Instance.new("TextButton")
+    Caixa.Parent = Linha
+    Caixa.BackgroundColor3 = ValorInicial and Color3.fromRGB(138,43,226) or Color3.fromRGB(60,40,90)
+    Caixa.Position = UDim2.new(0.8,0,0.15,0)
+    Caixa.Size = UDim2.new(0,25,0,20)
+    Caixa.Text = ""
+
+    local Ligado = ValorInicial
+    Caixa.MouseButton1Click:Connect(function()
+        Ligado = not Ligado
+        Caixa.BackgroundColor3 = Ligado and Color3.fromRGB(138,43,226) or Color3.fromRGB(60,40,90)
+        Callback(Ligado)
     end)
 end
 
--- 🔹 ABRIR/FECHAR
-BotaoAbrir.MouseButton1Click:Connect(function()
-    Painel.Visible = not Painel.Visible
-end)
+-- 🔹 FUNÇÃO CRIAR BARRA DE AJUSTE
+local function CriarSlider(Pai, Texto, Min, Max, ValorInicial, Callback)
+    local Linha = Instance.new("Frame")
+    Linha.Parent = Pai
+    Linha.BackgroundTransparency = 1
+    Linha.Size = UDim2.new(1,0,0,45)
 
--- 🔹 PEGAR ALVO DO AIMBOT
-local function PegarAlvo()
-    local MelhorAlvo, MenorDist = nil, Config.FOV
-    for _, Jogador in next, Players:GetPlayers() do
-        if Jogador == LocalPlayer then continue end
-        if Config.IgnorarAliados and Jogador.Team == LocalPlayer.Team then continue end
-        local P = Jogador.Character
-        if not P or not P:FindFirstChild("HumanoidRootPart") or P.Humanoid.Health <= 0 then continue end
+    local TextoLbl = Instance.new("TextLabel")
+    TextoLbl.Parent = Linha
+    TextoLbl.BackgroundTransparency = 1
+    TextoLbl.Position = UDim2.new(0,5,0,0)
+    TextoLbl.Size = UDim2.new(1,-10,0,20)
+    TextoLbl.Font = Enum.Font.Gotham
+    TextoLbl.Text = Texto..": "..ValorInicial
+    TextoLbl.TextColor3 = Color3.fromRGB(220,180,255)
+    TextoLbl.TextScaled = true
+    TextoLbl.TextXAlignment = Enum.TextXAlignment.Left
 
-        local Tela, Visivel = Camera:WorldToViewportPoint(P.HumanoidRootPart.Position)
-        if Visivel then
-            local Dist = (Vector2.new(Tela.X, Tela.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
-            if Dist < MenorDist then
-                MenorDist = Dist
-                MelhorAlvo = P.HumanoidRootPart
-            end
+    local Fundo = Instance.new("Frame")
+    Fundo.Parent = Linha
+    Fundo.BackgroundColor3 = Color3.fromRGB(50,35,75)
+    Fundo.Position = UDim2.new(0,5,0,25)
+    Fundo.Size = UDim2.new(1,-10,0,12)
+
+    local Botao = Instance.new("TextButton")
+    Botao.Parent = Fundo
+    Botao.BackgroundColor3 = Color3.fromRGB(138,43,226)
+    Botao.Size = UDim2.new(0.2,0,1,0)
+    Botao.Text = ""
+
+    local ValorAtual = ValorInicial
+    local Arrastando = false
+
+    Botao.MouseButton1Down:Connect(function() Arrastando = true end)
+    UIS.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then Arrastando = false end end)
+
+    RunService.InputChanged:Connect(function(i)
+        if Arrastando and i.UserInputType == Enum.UserInputType.MouseMovement then
+            local Pos = UIS:GetMouseLocation()
+            local Inicio = Fundo.AbsolutePosition.X
+            local Fim = Fundo.AbsolutePosition.X + Fundo.AbsoluteSize.X
+            local Porc = math.clamp((Pos.X - Inicio)/(Fim - Inicio),0,1)
+            ValorAtual = math.floor(Min + (Max - Min)*Porc)
+            TextoLbl.Text = Texto..": "..ValorAtual
+            Callback(ValorAtual)
         end
-    end
-    return MelhorAlvo
+    end)
 end
 
--- 🔹 AIMBOT E FOV
-CriarBotao("🎯 AIMBOT (LIGA/DESLIGA)", function()
-    Config.AimbotLigado = not Config.AimbotLigado
-    game:GetService("StarterGui"):SetCore("SendNotification",{Title="🎭", Text="Aimbot: "..(Config.AimbotLigado and "LIGADO" or "DESLIGADO"), Duration=2})
+-- 🔹 CRIAR ABAS E CONTEÚDO
+for i, Nome in ipairs(ListaAbas) do
+    local Btn = Instance.new("TextButton")
+    Btn.Parent = MenuAbas
+    Btn.BackgroundColor3 = i == 1 and Color3.fromRGB(138,43,226) or Color3.fromRGB(40,28,60)
+    Btn.Position = UDim2.new(0,5,0,(i-1)*40+5)
+    Btn.Size = UDim2.new(1,-10,0,32)
+    Btn.Font = Enum.Font.Gotham
+    Btn.Text = Nome
+    Btn.TextColor3 = Color3.fromRGB(220,180,255)
+    Btn.TextScaled = true
+    Btn.MouseButton1Click:Connect(function()
+        Config.AbaAtual = i
+        for k,v in pairs(BotoesAbas) do v.BackgroundColor3 = k == i and Color3.fromRGB(138,43,226) or Color3.fromRGB(40,28,60) end
+        for k,v in pairs(Conteudos) do v.Visible = k == i end
+    end)
+    BotoesAbas[i] = Btn
+
+    local Conteudo = Instance.new("ScrollingFrame")
+    Conteudo.Parent = AreaConteudo
+    Conteudo.BackgroundTransparency = 1
+    Conteudo.Size = UDim2.new(1,0,1,0)
+    Conteudo.ScrollBarThickness = 5
+    Conteudo.Visible = i == 1
+
+    local Layout = Instance.new("UIListLayout")
+    Layout.Parent = Conteudo
+    Layout.Padding = UDim.new(0,10)
+    Conteudos[i] = Conteudo
+end
+
+-- 🔹 PREENCHER ABA 1: GERAL
+CriarSlider(Conteudos[1], "⚡ Velocidade", 16,32, Config.Velocidade, function(v)
+    Config.Velocidade = v
+    local P = LocalPlayer.Character
+    if P and P:FindFirstChild("Humanoid") then P.Humanoid.WalkSpeed = v end
 end)
-CriarBotao("🔼 AUMENTAR FOV", function()
-    Config.FOV = math.min(Config.FOV + 10, 300)
-    game:GetService("StarterGui"):SetCore("SendNotification",{Title="🎭 FOV", Text="Valor: "..Config.FOV, Duration=1.5})
-end)
-CriarBotao("🔽 DIMINUIR FOV", function()
-    Config.FOV = math.max(Config.FOV - 10, 30)
-    game:GetService("StarterGui"):SetCore("SendNotification",{Title="🎭 FOV", Text="Valor: "..Config.FOV, Duration=1.5})
+CriarSlider(Conteudos[1], "🦘 Força do Salto", 50,120, Config.Salto, function(v)
+    Config.Salto = v
+    local P = LocalPlayer.Character
+    if P and P:FindFirstChild("Humanoid") then P.Humanoid.JumpPower = v end
 end)
 
+-- 🔹 PREENCHER ABA 2: COMBATE
+CriarSwitch(Conteudos[2], "🎯 Aimbot", Config.Aimbot, function(v) Config.Aimbot = v end)
+CriarSlider(Conteudos[2], "📏 Campo de Visão (FOV)", 30,300, Config.FOV, function(v) Config.FOV = v end)
+CriarSlider(Conteudos[2], "🎚️ Suavidade da Mira", 5,100, Config.Suavidade*100, function(v) Config.Suavidade = v/100 end)
+
+-- 🔹 PREENCHER ABA 3: ESP
+CriarSwitch(Conteudos[3], "👁️ Mostrar ESP", Config.ESP, function(v)
+    Config.ESP = v
+    if not v then for _,e in pairs(ListaEtiquetas) do e:Destroy() end ListaEtiquetas={} end
+end)
+CriarSwitch(Conteudos[3], "🏷️ Nome do Jogador", Config.ESP_Nome, function(v) Config.ESP_Nome = v end)
+CriarSwitch(Conteudos[3], "❤️ Barra de Vida", Config.ESP_Vida, function(v) Config.ESP_Vida = v end)
+CriarSwitch(Conteudos[3], "📏 Distância", Config.ESP_Distancia, function(v) Config.ESP_Distancia = v end)
+
+-- 🔹 ABRIR/FECHAR PAINEL
+BtnAbrir.MouseButton1Click:Connect(function() Painel.Visible = not Painel.Visible end)
+
+-- 🔹 SISTEMA AIMBOT
+local function PegarAlvo()
+    local Melhor, Menor = nil, Config.FOV
+    for _,J in pairs(Players:GetPlayers()) do
+        if J == LocalPlayer then continue end
+        local P = J.Character
+        if not P or not P:FindFirstChild("HumanoidRootPart") or P.Humanoid.Health<=0 then continue end
+        local Tela, Vis = Camera:WorldToViewportPoint(P.HumanoidRootPart.Position)
+        if Vis then
+            local D = (Vector2.new(Tela.X,Tela.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
+            if D < Menor then Menor = D Melhor = P.HumanoidRootPart end
+        end
+    end
+    return Melhor
+end
+
 RunService.RenderStepped:Connect(function()
-    if Config.AimbotLigado then
+    if Config.Aimbot then
         local Alvo = PegarAlvo()
         if Alvo then
             local Dir = (Alvo.Position - Camera.CFrame.Position).Unit
-            Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + Dir), Config.Suavidade)
+            Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position+Dir), Config.Suavidade)
         end
     end
 end)
 
--- 🔹 VELOCIDADE E SALTO
-CriarBotao("⚡ AUMENTAR VELOCIDADE", function()
-    Config.Velocidade = math.min(Config.Velocidade + 2, Config.VelocidadeMax)
-    local P = LocalPlayer.Character
-    if P and P:FindFirstChild("Humanoid") then P.Humanoid.WalkSpeed = Config.Velocidade end
-end)
-CriarBotao("🐢 DIMINUIR VELOCIDADE", function()
-    Config.Velocidade = math.max(Config.Velocidade - 2, VelocidadeOriginal)
-    local P = LocalPlayer.Character
-    if P and P:FindFirstChild("Humanoid") then P.Humanoid.WalkSpeed = Config.Velocidade end
-end)
-CriarBotao("🦘 AUMENTAR SALTO", function()
-    Config.Salto = math.min(Config.Salto + 5, Config.SaltoMax)
-    local P = LocalPlayer.Character
-    if P and P:FindFirstChild("Humanoid") then P.Humanoid.JumpPower = Config.Salto end
-end)
-CriarBotao("⬇️ DIMINUIR SALTO", function()
-    Config.Salto = math.max(Config.Salto - 5, SaltoOriginal)
-    local P = LocalPlayer.Character
-    if P and P:FindFirstChild("Humanoid") then P.Humanoid.JumpPower = Config.Salto end
-end)
-
--- 🔹 ESP
-CriarBotao("👁️ ESP (LIGA/DESLIGA)", function()
-    Config.ESPLigado = not Config.ESPLigado
-    if not Config.ESPLigado then
-        for _, v in next, ListaEtiquetas do if v then v:Destroy() end end
-        ListaEtiquetas = {}
-    end
-end)
-
+-- 🔹 SISTEMA ESP
 task.spawn(function()
-    while task.wait(0.8) do
-        if not Config.ESPLigado then continue end
-        for _, Jogador in next, Players:GetPlayers() do
-            if Jogador == LocalPlayer then continue end
-            local P = Jogador.Character
-            if not P or not P:FindFirstChild("HumanoidRootPart") or P.Humanoid.Health <=0 then continue end
+    while task.wait(0.7) do
+        if not Config.ESP then continue end
+        for _,J in pairs(Players:GetPlayers()) do
+            if J == LocalPlayer then continue end
+            local P = J.Character
+            if not P or not P:FindFirstChild("HumanoidRootPart") or P.Humanoid.Health<=0 then continue end
 
-            local Etiqueta = ListaEtiquetas[Jogador.UserId] or Instance.new("BillboardGui")
-            Etiqueta.Adornee = P.HumanoidRootPart
-            Etiqueta.AlwaysOnTop = true
-            Etiqueta.Size = UDim2.new(0, 150, 0, 50)
-            Etiqueta.StudsOffset = Vector3.new(0, 3, 0)
-            Etiqueta.Parent = GuiPrincipal
+            local Tag = ListaEtiquetas[J.UserId] or Instance.new("BillboardGui")
+            Tag.Adornee = P.HumanoidRootPart
+            Tag.AlwaysOnTop = true
+            Tag.Size = UDim2.new(0,180,0,80)
+            Tag.StudsOffset = Vector3.new(0,4,0)
+            Tag.Parent = GuiPrincipal
 
-            local Texto = Etiqueta:FindFirstChild("TextoESP") or Instance.new("TextLabel")
-            Texto.Name = "TextoESP"
+            local Texto = Tag:FindFirstChild("Texto") or Instance.new("TextLabel")
+            Texto.Name = "Texto"
             Texto.BackgroundTransparency = 1
             Texto.Size = UDim2.new(1,0,1,0)
             Texto.Font = Enum.Font.GothamBold
-            Texto.TextColor3 = Color3.fromRGB(255, 100, 255)
+            Texto.TextColor3 = Color3.fromRGB(255,120,255)
             Texto.TextStrokeTransparency = 0
             Texto.TextScaled = true
-            Texto.Text = Jogador.Name.."\n❤️ "..math.floor(P.Humanoid.Health).."/"..P.Humanoid.MaxHealth
-            Texto.Parent = Etiqueta
+            local Dist = math.floor((P.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
+            local Txt = ""
+            if Config.ESP_Nome then Txt = Txt..J.Name.."\n" end
+            if Config.ESP_Vida then Txt = Txt.."❤️ "..math.floor(P.Humanoid.Health).."/"..P.Humanoid.MaxHealth.."\n" end
+            if Config.ESP_Distancia then Txt = Txt.."📏 "..Dist.."m" end
+            Texto.Text = Txt
+            Texto.Parent = Tag
 
-            ListaEtiquetas[Jogador.UserId] = Etiqueta
+            ListaEtiquetas[J.UserId] = Tag
         end
     end
 end)
