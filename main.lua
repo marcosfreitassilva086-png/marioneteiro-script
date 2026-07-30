@@ -1,6 +1,6 @@
 -- ==========================================
--- 🎭 MARIONETEIRO — VERSÃO LAYOUT AVANÇADO
--- ABAS / INTERRUPTORES / BARRAS / ROXO
+-- 🎭 MARIONETEIRO — VERSÃO CORRIGIDA DELTA
+-- ABAS / INTERRUPTORES / BARRAS / FUNCIONANDO
 -- ==========================================
 
 -- ✅ ESPERA CARREGAR
@@ -9,7 +9,7 @@ print("🎭 MARIONETEIRO CARREGOU!")
 
 game:GetService("StarterGui"):SetCore("SendNotification",{
     Title = "🎭 MARIONETEIRO",
-    Text = "Novo layout carregado!",
+    Text = "Painel atualizado — funções aparecendo!",
     Duration = 3
 })
 
@@ -17,7 +17,6 @@ game:GetService("StarterGui"):SetCore("SendNotification",{
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
-local UIS = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local GuiPrincipal = game.CoreGui
 
@@ -100,12 +99,12 @@ local ListaAbas = {"Geral", "Combate", "ESP", "Mais"}
 local BotoesAbas = {}
 local Conteudos = {}
 
--- 🔹 FUNÇÃO CRIAR INTERRUPTOR
+-- 🔹 FUNÇÃO CRIAR INTERRUPTOR (GARANTIDO)
 local function CriarSwitch(Pai, Texto, ValorInicial, Callback)
     local Linha = Instance.new("Frame")
     Linha.Parent = Pai
     Linha.BackgroundTransparency = 1
-    Linha.Size = UDim2.new(1,0,0,30)
+    Linha.Size = UDim2.new(1,0,0,35)
 
     local TextoLbl = Instance.new("TextLabel")
     TextoLbl.Parent = Linha
@@ -121,8 +120,8 @@ local function CriarSwitch(Pai, Texto, ValorInicial, Callback)
     local Caixa = Instance.new("TextButton")
     Caixa.Parent = Linha
     Caixa.BackgroundColor3 = ValorInicial and Color3.fromRGB(138,43,226) or Color3.fromRGB(60,40,90)
-    Caixa.Position = UDim2.new(0.8,0,0.15,0)
-    Caixa.Size = UDim2.new(0,25,0,20)
+    Caixa.Position = UDim2.new(0.82,0,0.2,0)
+    Caixa.Size = UDim2.new(0,22,0,18)
     Caixa.Text = ""
 
     local Ligado = ValorInicial
@@ -133,52 +132,55 @@ local function CriarSwitch(Pai, Texto, ValorInicial, Callback)
     end)
 end
 
--- 🔹 FUNÇÃO CRIAR BARRA DE AJUSTE
-local function CriarSlider(Pai, Texto, Min, Max, ValorInicial, Callback)
+-- 🔹 FUNÇÃO CRIAR AJUSTE COM BOTÕES (COMPATÍVEL COM DELTA)
+local function CriarAjuste(Pai, Texto, Min, Max, ValorInicial, Callback)
     local Linha = Instance.new("Frame")
     Linha.Parent = Pai
     Linha.BackgroundTransparency = 1
-    Linha.Size = UDim2.new(1,0,0,45)
+    Linha.Size = UDim2.new(1,0,0,40)
 
+    local ValorAtual = ValorInicial
     local TextoLbl = Instance.new("TextLabel")
     TextoLbl.Parent = Linha
     TextoLbl.BackgroundTransparency = 1
     TextoLbl.Position = UDim2.new(0,5,0,0)
-    TextoLbl.Size = UDim2.new(1,-10,0,20)
+    TextoLbl.Size = UDim2.new(0.6,0,1,0)
     TextoLbl.Font = Enum.Font.Gotham
-    TextoLbl.Text = Texto..": "..ValorInicial
+    TextoLbl.Text = Texto..": "..ValorAtual
     TextoLbl.TextColor3 = Color3.fromRGB(220,180,255)
     TextoLbl.TextScaled = true
     TextoLbl.TextXAlignment = Enum.TextXAlignment.Left
 
-    local Fundo = Instance.new("Frame")
-    Fundo.Parent = Linha
-    Fundo.BackgroundColor3 = Color3.fromRGB(50,35,75)
-    Fundo.Position = UDim2.new(0,5,0,25)
-    Fundo.Size = UDim2.new(1,-10,0,12)
+    local BtnMenos = Instance.new("TextButton")
+    BtnMenos.Parent = Linha
+    BtnMenos.BackgroundColor3 = Color3.fromRGB(55,35,85)
+    BtnMenos.Position = UDim2.new(0.65,0,0.1,0)
+    BtnMenos.Size = UDim2.new(0,25,0,25)
+    BtnMenos.Font = Enum.Font.GothamBold
+    BtnMenos.Text = "-"
+    BtnMenos.TextColor3 = Color3.new(1,1,1)
+    BtnMenos.TextScaled = true
 
-    local Botao = Instance.new("TextButton")
-    Botao.Parent = Fundo
-    Botao.BackgroundColor3 = Color3.fromRGB(138,43,226)
-    Botao.Size = UDim2.new(0.2,0,1,0)
-    Botao.Text = ""
+    local BtnMais = Instance.new("TextButton")
+    BtnMais.Parent = Linha
+    BtnMais.BackgroundColor3 = Color3.fromRGB(138,43,226)
+    BtnMais.Position = UDim2.new(0.9,0,0.1,0)
+    BtnMais.Size = UDim2.new(0,25,0,25)
+    BtnMais.Font = Enum.Font.GothamBold
+    BtnMais.Text = "+"
+    BtnMais.TextColor3 = Color3.new(1,1,1)
+    BtnMais.TextScaled = true
 
-    local ValorAtual = ValorInicial
-    local Arrastando = false
+    BtnMenos.MouseButton1Click:Connect(function()
+        ValorAtual = math.max(Min, ValorAtual - 1)
+        TextoLbl.Text = Texto..": "..ValorAtual
+        Callback(ValorAtual)
+    end)
 
-    Botao.MouseButton1Down:Connect(function() Arrastando = true end)
-    UIS.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then Arrastando = false end end)
-
-    RunService.InputChanged:Connect(function(i)
-        if Arrastando and i.UserInputType == Enum.UserInputType.MouseMovement then
-            local Pos = UIS:GetMouseLocation()
-            local Inicio = Fundo.AbsolutePosition.X
-            local Fim = Fundo.AbsolutePosition.X + Fundo.AbsoluteSize.X
-            local Porc = math.clamp((Pos.X - Inicio)/(Fim - Inicio),0,1)
-            ValorAtual = math.floor(Min + (Max - Min)*Porc)
-            TextoLbl.Text = Texto..": "..ValorAtual
-            Callback(ValorAtual)
-        end
+    BtnMais.MouseButton1Click:Connect(function()
+        ValorAtual = math.min(Max, ValorAtual + 1)
+        TextoLbl.Text = Texto..": "..ValorAtual
+        Callback(ValorAtual)
     end)
 end
 
@@ -206,20 +208,21 @@ for i, Nome in ipairs(ListaAbas) do
     Conteudo.Size = UDim2.new(1,0,1,0)
     Conteudo.ScrollBarThickness = 5
     Conteudo.Visible = i == 1
+    Conteudo.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
     local Layout = Instance.new("UIListLayout")
     Layout.Parent = Conteudo
-    Layout.Padding = UDim.new(0,10)
+    Layout.Padding = UDim.new(0,12)
     Conteudos[i] = Conteudo
 end
 
 -- 🔹 PREENCHER ABA 1: GERAL
-CriarSlider(Conteudos[1], "⚡ Velocidade", 16,32, Config.Velocidade, function(v)
+CriarAjuste(Conteudos[1], "⚡ Velocidade", 16,32, Config.Velocidade, function(v)
     Config.Velocidade = v
     local P = LocalPlayer.Character
     if P and P:FindFirstChild("Humanoid") then P.Humanoid.WalkSpeed = v end
 end)
-CriarSlider(Conteudos[1], "🦘 Força do Salto", 50,120, Config.Salto, function(v)
+CriarAjuste(Conteudos[1], "🦘 Força do Salto", 50,120, Config.Salto, function(v)
     Config.Salto = v
     local P = LocalPlayer.Character
     if P and P:FindFirstChild("Humanoid") then P.Humanoid.JumpPower = v end
@@ -227,8 +230,8 @@ end)
 
 -- 🔹 PREENCHER ABA 2: COMBATE
 CriarSwitch(Conteudos[2], "🎯 Aimbot", Config.Aimbot, function(v) Config.Aimbot = v end)
-CriarSlider(Conteudos[2], "📏 Campo de Visão (FOV)", 30,300, Config.FOV, function(v) Config.FOV = v end)
-CriarSlider(Conteudos[2], "🎚️ Suavidade da Mira", 5,100, Config.Suavidade*100, function(v) Config.Suavidade = v/100 end)
+CriarAjuste(Conteudos[2], "📏 Campo de Visão (FOV)", 30,300, Config.FOV, function(v) Config.FOV = v end)
+CriarAjuste(Conteudos[2], "🎚️ Suavidade da Mira", 5,100, Config.Suavidade*100, function(v) Config.Suavidade = v/100 end)
 
 -- 🔹 PREENCHER ABA 3: ESP
 CriarSwitch(Conteudos[3], "👁️ Mostrar ESP", Config.ESP, function(v)
@@ -238,6 +241,9 @@ end)
 CriarSwitch(Conteudos[3], "🏷️ Nome do Jogador", Config.ESP_Nome, function(v) Config.ESP_Nome = v end)
 CriarSwitch(Conteudos[3], "❤️ Barra de Vida", Config.ESP_Vida, function(v) Config.ESP_Vida = v end)
 CriarSwitch(Conteudos[3], "📏 Distância", Config.ESP_Distancia, function(v) Config.ESP_Distancia = v end)
+
+-- 🔹 PREENCHER ABA 4: MAIS
+CriarSwitch(Conteudos[4], "🛡️ Anti‑AFK", false, function(v) end)
 
 -- 🔹 ABRIR/FECHAR PAINEL
 BtnAbrir.MouseButton1Click:Connect(function() Painel.Visible = not Painel.Visible end)
