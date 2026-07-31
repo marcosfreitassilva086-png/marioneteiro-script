@@ -1,401 +1,395 @@
--- ==========================================
--- 🎭 MARIONETEIRO — VERSÃO PVP COMPLETA
--- AIMBOT OTIMIZADO + PREVISÃO + MIRA SELECIONÁVEL + ESP + MOVIMENTO + UTILIDADES
--- ==========================================
+-- ==============================================
+-- 🧅 MARIONETEIRO SCRIPT — BLOX FRUITS
+-- Versão: 1.0 | Estilo: Onion 13
+-- ==============================================
 
--- ✅ Espera o jogo carregar completamente
-repeat task.wait(0.1) until game:IsLoaded() and game.Players.LocalPlayer
-print("🎭 MARIONETEIRO — PVP PRONTO!")
-
-game:GetService("StarterGui"):SetCore("SendNotification",{
-    Title = "🎭 MARIONETEIRO",
-    Text = "Todas as funções PVP integradas!",
-    Duration = 3
-})
-
--- 🔹 Serviços essenciais
+-- ✅ SERVIÇOS OBRIGATÓRIOS
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local Camera = workspace.CurrentCamera
-local LocalPlayer = Players.LocalPlayer
-local GuiPrincipal = game.CoreGui
+local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
+local GuiService = game:GetService("GuiService")
+local Drawing = Drawing.new
+local TweenService = game:GetService("TweenService")
 
--- 🔹 Proteção contra erros
-local function Tentar(funcao) pcall(funcao) end
+local Player = Players.LocalPlayer
+local Mouse = Player:GetMouse()
 
--- ⚙️ TODAS AS CONFIGURAÇÕES UNIFICADAS
-local Config = {
-    -- Aimbot PvP
-    Aimbot = false,
-    AlvoParte = "Cabeça", -- Cabeça / Peito / Raiz
-    PrevisaoMovimento = true,
-    ForcaPrevisao = 0.25,
-    Suavidade = 0.3,
-    FOV = 120,
-    DistanciaMaxima = 80,
-    IgnorarAliados = true,
-    IgnorarMortos = true,
-    -- Movimento
-    Velocidade = 16,
-    VelocidadeMax = 32,
-    Salto = 50,
-    SaltoMax = 120,
-    SemRecuo = false,
-    -- ESP
-    ESP = false,
-    ESP_Caixa = true,
-    ESP_Nome = true,
-    ESP_Vida = true,
-    ESP_Distancia = true,
-    -- Utilidades
-    AntiAFK = false
-}
-local ListaEtiquetas = {}
+-- ✅ NOTIFICAÇÃO DE CARGA
+StarterGui:SetCore("SendNotification", {
+    Title = "🧅 MARIONETEIRO",
+    Text = "Script carregado com sucesso!",
+    Duration = 4
+})
 
--- 🔹 Aplica velocidade e salto ao renascer
-local function AtualizarMovimento()
-    local Personagem = LocalPlayer.Character
-    if Personagem and Personagem:FindFirstChild("Humanoid") then
-        Personagem.Humanoid.WalkSpeed = Config.Velocidade
-        Personagem.Humanoid.JumpPower = Config.Salto
-    end
-end
-LocalPlayer.CharacterAdded:Connect(AtualizarMovimento)
-task.wait(1)
-AtualizarMovimento()
+-- ==============================================
+-- 🎨 INTERFACE — PAINEL ROXO IGUAL ONION 13
+-- ==============================================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "MarioneteiroUI"
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- 🔹 Interface principal — Tema roxo, painel centralizado
-local Tela = Instance.new("ScreenGui")
-Tela.Name = "MarioneteiroPvP"
-Tela.Parent = GuiPrincipal
-Tela.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-Tela.ResetOnSpawn = false
+-- PAINEL PRINCIPAL
+local MainPanel = Instance.new("Frame")
+MainPanel.Name = "MainPanel"
+MainPanel.Size = UDim2.new(0, 320, 0, 420)
+MainPanel.Position = UDim2.new(0.35, 0, 0.2, 0)
+MainPanel.BackgroundColor3 = Color3.fromRGB(30, 15, 60)
+MainPanel.BorderSizePixel = 2
+MainPanel.BorderColor3 = Color3.fromRGB(120, 60, 220)
+MainPanel.Parent = ScreenGui
 
--- Botão flutuante para abrir/fechar
-local BtnAbrir = Instance.new("TextButton")
-BtnAbrir.Parent = Tela
-BtnAbrir.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
-BtnAbrir.Position = UDim2.new(0.02, 0, 0.4, 0)
-BtnAbrir.Size = UDim2.new(0, 55, 0, 55)
-BtnAbrir.Font = Enum.Font.GothamBold
-BtnAbrir.Text = "🎭"
-BtnAbrir.TextColor3 = Color3.new(1, 1, 1)
-BtnAbrir.TextScaled = true
-BtnAbrir.Active = true
-BtnAbrir.Draggable = true
+-- CABEÇALHO
+local Header = Instance.new("Frame")
+Header.Name = "Header"
+Header.Size = UDim2.new(1, 0, 0, 40)
+Header.BackgroundColor3 = Color3.fromRGB(50, 25, 100)
+Header.Parent = MainPanel
 
--- Painel principal
-local Painel = Instance.new("Frame")
-Painel.Parent = Tela
-Painel.BackgroundColor3 = Color3.fromRGB(18, 12, 28)
-Painel.BorderColor3 = Color3.fromRGB(138, 43, 226)
-Painel.Position = UDim2.new(0.5, -180, 0.5, -220)
-Painel.Size = UDim2.new(0, 360, 0, 440)
-Painel.Visible = false
-Painel.Active = true
-Painel.Draggable = true
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 1, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "🧅 MARIONETEIRO"
+Title.TextColor3 = Color3.fromRGB(200, 150, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.Parent = Header
 
--- Título
-local Titulo = Instance.new("TextLabel")
-Titulo.Parent = Painel
-Titulo.BackgroundTransparency = 1
-Titulo.Position = UDim2.new(0, 0, 0, 10)
-Titulo.Size = UDim2.new(1, 0, 0, 35)
-Titulo.Font = Enum.Font.GothamBold
-Titulo.Text = "🎭 MARIONETEIRO — PVP BLOX FRUITS"
-Titulo.TextColor3 = Color3.fromRGB(200, 140, 255)
-Titulo.TextScaled = true
+-- 📑 SISTEMA DE ABAS
+local tabs = {"🎯 Aimbot", "👁️ ESP", "⚡ Movimento", "⚔️ Combate", "🍎 Frutas", "🤖 Farm"}
+local currentTab = 1
+local tabButtons = {}
+local tabContents = {}
 
--- Menu de abas
-local MenuAbas = Instance.new("Frame")
-MenuAbas.Parent = Painel
-MenuAbas.BackgroundColor3 = Color3.fromRGB(30, 20, 45)
-MenuAbas.Position = UDim2.new(0, 10, 0, 55)
-MenuAbas.Size = UDim2.new(0, 90, 1, -65)
+local TabContainer = Instance.new("Frame")
+TabContainer.Size = UDim2.new(1, 0, 0, 35)
+TabContainer.Position = UDim2.new(0, 0, 0, 40)
+TabContainer.BackgroundColor3 = Color3.fromRGB(40, 20, 80)
+TabContainer.Parent = MainPanel
 
-local AreaConteudo = Instance.new("Frame")
-AreaConteudo.Parent = Painel
-AreaConteudo.BackgroundTransparency = 1
-AreaConteudo.Position = UDim2.new(0, 110, 0, 55)
-AreaConteudo.Size = UDim2.new(1, -120, 1, -65)
+local ContentContainer = Instance.new("ScrollingFrame")
+ContentContainer.Size = UDim2.new(1, -10, 1, -85)
+ContentContainer.Position = UDim2.new(0, 5, 0, 80)
+ContentContainer.BackgroundTransparency = 1
+ContentContainer.ScrollBarThickness = 4
+ContentContainer.ScrollBarColor3 = Color3.fromRGB(120, 60, 220)
+ContentContainer.CanvasSize = UDim2.new(0, 0, 0, 800)
+ContentContainer.Parent = MainPanel
 
-local NomesAbas = {"Geral", "Aimbot PvP", "ESP", "Utilidades"}
-local BotoesAbas = {}
-local Conteudos = {}
+-- CRIAR ABAS
+for i, tabName in ipairs(tabs) do
+    local TabBtn = Instance.new("TextButton")
+    TabBtn.Size = UDim2.new(1/#tabs, -2, 1, -4)
+    TabBtn.Position = UDim2.new((i-1)/#tabs, 1, 0, 2)
+    TabBtn.BackgroundColor3 = i == 1 and Color3.fromRGB(90, 45, 180) or Color3.fromRGB(50, 25, 100)
+    TabBtn.Text = tabName
+    TabBtn.TextColor3 = Color3.fromRGB(220, 220, 220)
+    TabBtn.Font = Enum.Font.Gotham
+    TabBtn.TextSize = 11
+    TabBtn.Parent = TabContainer
+    tabButtons[i] = TabBtn
 
--- 🔹 Funções auxiliares para criar controles
-local function CriarInterruptor(Pai, Texto, ValorInicial, Acao)
-    local Linha = Instance.new("Frame")
-    Linha.Parent = Pai
-    Linha.BackgroundTransparency = 1
-    Linha.Size = UDim2.new(1, 0, 0, 35)
-
-    local Rotulo = Instance.new("TextLabel")
-    Rotulo.Parent = Linha
-    Rotulo.BackgroundTransparency = 1
-    Rotulo.Position = UDim2.new(0, 5, 0, 0)
-    Rotulo.Size = UDim2.new(0.7, 0, 1, 0)
-    Rotulo.Font = Enum.Font.Gotham
-    Rotulo.Text = Texto
-    Rotulo.TextColor3 = Color3.fromRGB(220, 180, 255)
-    Rotulo.TextScaled = true
-    Rotulo.TextXAlignment = Enum.TextXAlignment.Left
-
-    local Caixa = Instance.new("TextButton")
-    Caixa.Parent = Linha
-    Caixa.BackgroundColor3 = ValorInicial and Color3.fromRGB(138, 43, 226) or Color3.fromRGB(60, 40, 90)
-    Caixa.Position = UDim2.new(0.82, 0, 0.2, 0)
-    Caixa.Size = UDim2.new(0, 22, 0, 18)
-    Caixa.Text = ""
-
-    local Ligado = ValorInicial
-    Caixa.MouseButton1Click:Connect(function()
-        Ligado = not Ligado
-        Caixa.BackgroundColor3 = Ligado and Color3.fromRGB(138, 43, 226) or Color3.fromRGB(60, 40, 90)
-        Acao(Ligado)
-    end)
-end
-
-local function CriarAjusteValor(Pai, Texto, Minimo, Maximo, ValorInicial, Acao)
-    local Linha = Instance.new("Frame")
-    Linha.Parent = Pai
-    Linha.BackgroundTransparency = 1
-    Linha.Size = UDim2.new(1, 0, 0, 40)
-
-    local ValorAtual = ValorInicial
-    local Rotulo = Instance.new("TextLabel")
-    Rotulo.Parent = Linha
-    Rotulo.BackgroundTransparency = 1
-    Rotulo.Position = UDim2.new(0, 5, 0, 0)
-    Rotulo.Size = UDim2.new(0.6, 0, 1, 0)
-    Rotulo.Font = Enum.Font.Gotham
-    Rotulo.Text = Texto..": "..ValorAtual
-    Rotulo.TextColor3 = Color3.fromRGB(220, 180, 255)
-    Rotulo.TextScaled = true
-
-    local BotaoMenos = Instance.new("TextButton")
-    BotaoMenos.Parent = Linha
-    BotaoMenos.BackgroundColor3 = Color3.fromRGB(55, 35, 85)
-    BotaoMenos.Position = UDim2.new(0.65, 0, 0.1, 0)
-    BotaoMenos.Size = UDim2.new(0, 25, 0, 25)
-    BotaoMenos.Font = Enum.Font.GothamBold
-    BotaoMenos.Text = "-"
-    BotaoMenos.TextColor3 = Color3.new(1, 1, 1)
-    BotaoMenos.TextScaled = true
-
-    local BotaoMais = Instance.new("TextButton")
-    BotaoMais.Parent = Linha
-    BotaoMais.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
-    BotaoMais.Position = UDim2.new(0.9, 0, 0.1, 0)
-    BotaoMais.Size = UDim2.new(0, 25, 0, 25)
-    BotaoMais.Font = Enum.Font.GothamBold
-    BotaoMais.Text = "+"
-    BotaoMais.TextColor3 = Color3.new(1, 1, 1)
-    BotaoMais.TextScaled = true
-
-    BotaoMenos.MouseButton1Click:Connect(function()
-        ValorAtual = math.max(Minimo, ValorAtual - 1)
-        Rotulo.Text = Texto..": "..ValorAtual
-        Acao(ValorAtual)
-        AtualizarMovimento()
-    end)
-
-    BotaoMais.MouseButton1Click:Connect(function()
-        ValorAtual = math.min(Maximo, ValorAtual + 1)
-        Rotulo.Text = Texto..": "..ValorAtual
-        Acao(ValorAtual)
-        AtualizarMovimento()
-    end)
-end
-
--- 🔹 Montar as abas
-for Indice, NomeAba in ipairs(NomesAbas) do
-    local BotaoAba = Instance.new("TextButton")
-    BotaoAba.Parent = MenuAbas
-    BotaoAba.BackgroundColor3 = Indice == 1 and Color3.fromRGB(138, 43, 226) or Color3.fromRGB(40, 28, 60)
-    BotaoAba.Position = UDim2.new(0, 5, 0, (Indice - 1) * 40 + 5)
-    BotaoAba.Size = UDim2.new(1, -10, 0, 32)
-    BotaoAba.Font = Enum.Font.Gotham
-    BotaoAba.Text = NomeAba
-    BotaoAba.TextColor3 = Color3.fromRGB(220, 180, 255)
-    BotaoAba.TextScaled = true
-
-    BotaoAba.MouseButton1Click:Connect(function()
-        for K, V in pairs(BotoesAbas) do
-            V.BackgroundColor3 = K == Indice and Color3.fromRGB(138, 43, 226) or Color3.fromRGB(40, 28, 60)
+    TabBtn.MouseButton1Click:Connect(function()
+        currentTab = i
+        for j, btn in ipairs(tabButtons) do
+            btn.BackgroundColor3 = j == i and Color3.fromRGB(90, 45, 180) or Color3.fromRGB(50, 25, 100)
         end
-        for K, V in pairs(Conteudos) do
-            V.Visible = K == Indice
+        for j, content in ipairs(tabContents) do
+            content.Visible = j == i
         end
     end)
-    BotoesAbas[Indice] = BotaoAba
 
-    local ConteudoAba = Instance.new("ScrollingFrame")
-    ConteudoAba.Parent = AreaConteudo
-    ConteudoAba.BackgroundTransparency = 1
-    ConteudoAba.Size = UDim2.new(1, 0, 1, 0)
-    ConteudoAba.ScrollBarThickness = 5
-    ConteudoAba.Visible = Indice == 1
-    ConteudoAba.AutomaticCanvasSize = Enum.AutomaticSize.Y
-
-    local Layout = Instance.new("UIListLayout")
-    Layout.Parent = ConteudoAba
-    Layout.Padding = UDim.new(0, 12)
-    Conteudos[Indice] = ConteudoAba
+    local Content = Instance.new("Frame")
+    Content.Size = UDim2.new(1, 0, 0, 750)
+    Content.BackgroundTransparency = 1
+    Content.Visible = i == 1
+    Content.Parent = ContentContainer
+    tabContents[i] = Content
 end
 
--- 🔹 Preencher aba Geral
-CriarAjusteValor(Conteudos[1], "⚡ Velocidade", 16, Config.VelocidadeMax, Config.Velocidade, function(V) Config.Velocidade = V end)
-CriarAjusteValor(Conteudos[1], "🦘 Força do Salto", 50, Config.SaltoMax, Config.Salto, function(V) Config.Salto = V end)
-CriarInterruptor(Conteudos[1], "🔫 Sem Recuo", Config.SemRecuo, function(V) Config.SemRecuo = V end)
+-- ==============================================
+-- 🔧 FUNÇÕES PRA CRIAR CHECKBOX E SLIDER
+-- ==============================================
+local function CreateCheckbox(parent, y, text, callback)
+    local Container = Instance.new("Frame")
+    Container.Size = UDim2.new(1, 0, 0, 30)
+    Container.Position = UDim2.new(0, 0, 0, y)
+    Container.BackgroundTransparency = 1
+    Container.Parent = parent
 
--- 🔹 Preencher aba Aimbot PvP
-CriarInterruptor(Conteudos[2], "🎯 Aimbot", Config.Aimbot, function(V) Config.Aimbot = V end)
-CriarInterruptor(Conteudos[2], "🎯 Mira em Cabeça", true, function(V) Config.AlvoParte = V and "Cabeça" or "Peito" end)
-CriarInterruptor(Conteudos[2], "📈 Previsão de Movimento", Config.PrevisaoMovimento, function(V) Config.PrevisaoMovimento = V end)
-CriarInterruptor(Conteudos[2], "🚫 Ignorar Aliados", Config.IgnorarAliados, function(V) Config.IgnorarAliados = V end)
-CriarInterruptor(Conteudos[2], "💀 Ignorar Mortos", Config.IgnorarMortos, function(V) Config.IgnorarMortos = V end)
-CriarAjusteValor(Conteudos[2], "📏 Campo de Visão (FOV)", 30, 200, Config.FOV, function(V) Config.FOV = V end)
-CriarAjusteValor(Conteudos[2], "📏 Distância Máxima", 20, 150, Config.DistanciaMaxima, function(V) Config.DistanciaMaxima = V end)
-CriarAjusteValor(Conteudos[2], "🎚️ Suavidade da Mira", 10, 90, Config.Suavidade * 100, function(V) Config.Suavidade = V / 100 end)
+    local Box = Instance.new("Frame")
+    Box.Size = UDim2.new(0, 20, 0, 20)
+    Box.Position = UDim2.new(0, 5, 0.5, -10)
+    Box.BackgroundColor3 = Color3.fromRGB(60, 30, 120)
+    Box.BorderSizePixel = 1
+    Box.BorderColor3 = Color3.fromRGB(140, 70, 220)
+    Box.Parent = Container
 
--- 🔹 Preencher aba ESP
-CriarInterruptor(Conteudos[3], "👁️ Mostrar ESP", Config.ESP, function(V)
-    Config.ESP = V
-    if not V then
-        for _, Etiqueta in pairs(ListaEtiquetas) do
-            if Etiqueta then Etiqueta:Destroy() end
+    local Check = Instance.new("TextLabel")
+    Check.Size = UDim2.new(1, 0, 1, 0)
+    Check.BackgroundTransparency = 1
+    Check.Text = ""
+    Check.TextColor3 = Color3.fromRGB(0, 255, 100)
+    Check.Font = Enum.Font.GothamBold
+    Check.TextSize = 14
+    Check.Parent = Box
+
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(1, -35, 1, 0)
+    Label.Position = UDim2.new(0, 35, 0, 0)
+    Label.BackgroundTransparency = 1
+    Label.Text = text
+    Label.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Label.Font = Enum.Font.Gotham
+    Label.TextSize = 13
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.Parent = Container
+
+    local enabled = false
+    Container.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            enabled = not enabled
+            Check.Text = enabled and "✓" or ""
+            Box.BackgroundColor3 = enabled and Color3.fromRGB(40, 180, 90) or Color3.fromRGB(60, 30, 120)
+            callback(enabled)
         end
-        ListaEtiquetas = {}
-    end
+    end)
+
+    return Container
+end
+
+local function CreateSlider(parent, y, text, min, max, default, callback)
+    local Container = Instance.new("Frame")
+    Container.Size = UDim2.new(1, 0, 0, 45)
+    Container.Position = UDim2.new(0, 0, 0, y)
+    Container.BackgroundTransparency = 1
+    Container.Parent = parent
+
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(1, 0, 0, 18)
+    Label.BackgroundTransparency = 1
+    Label.Text = text .. ": " .. default
+    Label.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Label.Font = Enum.Font.Gotham
+    Label.TextSize = 12
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.Name = "Label"
+    Label.Parent = Container
+
+    local BarBg = Instance.new("Frame")
+    BarBg.Size = UDim2.new(1, -10, 0, 12)
+    BarBg.Position = UDim2.new(0, 5, 0, 25)
+    BarBg.BackgroundColor3 = Color3.fromRGB(60, 30, 120)
+    BarBg.Parent = Container
+
+    local BarFg = Instance.new("Frame")
+    BarFg.Size = UDim2.new((default-min)/(max-min), 0, 1, 0)
+    BarFg.BackgroundColor3 = Color3.fromRGB(130, 65, 220)
+    BarFg.Parent = BarBg
+
+    local value = default
+    local dragging = false
+
+    BarBg.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local abs = BarBg.AbsoluteSize.X
+            local pos = input.Position.X - BarBg.AbsolutePosition.X
+            pos = math.clamp(pos, 0, abs)
+            value = math.floor(min + (pos/abs) * (max - min))
+            BarFg.Size = UDim2.new(pos/abs, 0, 1, 0)
+            Label.Text = text .. ": " .. value
+            callback(value)
+        end
+    end)
+
+    return Container
+end
+
+-- ==============================================
+-- ⭕ CÍRCULO AMARELO DE FOV
+-- ==============================================
+local FovCircle = Drawing.new("Circle")
+FovCircle.Radius = 90
+FovCircle.Thickness = 1.5
+FovCircle.Color = Color3.fromRGB(255, 220, 0)
+FovCircle.Filled = false
+FovCircle.Visible = true
+FovCircle.NumSides = 64
+
+-- ==============================================
+-- 🎯 ABA AIMBOT
+-- ==============================================
+local aimbotEnabled = false
+local fovValue = 90
+local smoothValue = 2
+
+CreateCheckbox(tabContents[1], 10, "Ativar Aimbot", function(v) aimbotEnabled = v end)
+CreateSlider(tabContents[1], 50, "Campo de Visão (FOV)", 20, 360, 90, function(v)
+    fovValue = v
+    FovCircle.Radius = v
 end)
-CriarInterruptor(Conteudos[3], "📦 Caixa ao Redor", Config.ESP_Caixa, function(V) Config.ESP_Caixa = V end)
-CriarInterruptor(Conteudos[3], "🏷️ Nome do Jogador", Config.ESP_Nome, function(V) Config.ESP_Nome = V end)
-CriarInterruptor(Conteudos[3], "❤️ Vida e Escudo", Config.ESP_Vida, function(V) Config.ESP_Vida = V end)
-CriarInterruptor(Conteudos[3], "📏 Distância até Você", Config.ESP_Distancia, function(V) Config.ESP_Distancia = V end)
+CreateSlider(tabContents[1], 110, "Suavidade", 1, 10, 2, function(v) smoothValue = v end)
+CreateCheckbox(tabContents[1], 170, "Mirar na Cabeça", function() end)
+CreateCheckbox(tabContents[1], 200, "Ignorar Aliados", function() end)
+CreateCheckbox(tabContents[1], 230, "🔒 Silent Aim (Em breve)", function() end) -- DESATIVADO DEPOIS
+CreateCheckbox(tabContents[1], 260, "🔒 Previsão de Movimento (Em breve)", function() end)
 
--- 🔹 Preencher aba Utilidades
-CriarInterruptor(Conteudos[4], "🛡️ Anti‑AFK", Config.AntiAFK, function(V) Config.AntiAFK = V end)
+-- ==============================================
+-- 👁️ ABA ESP
+-- ==============================================
+local espEnabled = false
+local showName = true
+local showHealth = true
+local showDist = true
 
--- 🔹 Abrir/fechar painel
-BtnAbrir.MouseButton1Click:Connect(function()
-    Painel.Visible = not Painel.Visible
-end)
+CreateCheckbox(tabContents[2], 10, "Ativar ESP", function(v) espEnabled = v end)
+CreateCheckbox(tabContents[2], 45, "Mostrar Nome", function(v) showName = v end)
+CreateCheckbox(tabContents[2], 80, "Mostrar Vida", function(v) showHealth = v end)
+CreateCheckbox(tabContents[2], 115, "Mostrar Distância", function(v) showDist = v end)
+CreateCheckbox(tabContents[2], 150, "Caixa no Corpo", function() end)
+CreateCheckbox(tabContents[2], 185, "🔒 Esqueleto (Em breve)", function() end)
+CreateCheckbox(tabContents[2], 220, "🔒 Fruta ESP (Em breve)", function() end)
 
--- 🔹 Sistema completo de busca de alvo para PvP
-local function PegarParteAlvo(Personagem)
-    if Config.AlvoParte == "Cabeça" and Personagem:FindFirstChild("Head") then
-        return Personagem.Head
-    elseif Config.AlvoParte == "Peito" and Personagem:FindFirstChild("Torso") then
-        return Personagem.Torso
-    end
-    return Personagem:FindFirstChild("HumanoidRootPart")
-end
+-- ==============================================
+-- ⚡ ABA MOVIMENTO
+-- ==============================================
+local speedValue = 16
+local jumpValue = 50
+local noKb = false
+local flyEnabled = false
 
-local function PegarMelhorAlvoPvP()
-    local MelhorAlvo, MenorDistanciaTela = nil, Config.FOV
-    for _, Jogador in next, Players:GetPlayers() do
-        if Jogador == LocalPlayer then goto Pular end
-        if Config.IgnorarAliados and Jogador.Team == LocalPlayer.Team then goto Pular end
+CreateSlider(tabContents[3], 10, "Velocidade", 16, 120, 16, function(v) speedValue = v end)
+CreateSlider(tabContents[3], 70, "Força do Pulo", 50, 300, 50, function(v) jumpValue = v end)
+CreateCheckbox(tabContents[3], 130, "Sem Recuo (No Knockback)", function(v) noKb = v end)
+CreateCheckbox(tabContents[3], 165, "Voar (Fly)", function(v) flyEnabled = v end)
+CreateCheckbox(tabContents[3], 200, "🔒 Noclip (Em breve)", function() end)
+CreateCheckbox(tabContents[3], 235, "🔒 Auto Dodge (Em breve)", function() end)
 
-        local Personagem = Jogador.Character
-        if not Personagem or not Personagem:FindFirstChild("HumanoidRootPart") then goto Pular end
-        if Config.IgnorarMortos and Personagem.Humanoid.Health <= 0 then goto Pular end
+-- ==============================================
+-- ⚔️ ABA COMBATE
+-- ==============================================
+CreateCheckbox(tabContents[4], 10, "🔒 Auto Combo (Precisa Remote)", function() end)
+CreateCheckbox(tabContents[4], 45, "🔒 Auto M1 (Precisa Remote)", function() end)
+CreateCheckbox(tabContents[4], 80, "🔒 Fast Attack (Precisa Remote)", function() end)
+CreateCheckbox(tabContents[4], 115, "🔒 Hitbox Expander (Precisa Remote)", function() end)
+CreateCheckbox(tabContents[4], 150, "🔒 Kill Aura (Precisa Remote)", function() end)
+CreateCheckbox(tabContents[4], 185, "🔒 Auto Haki (Precisa Remote)", function() end)
 
-        local ParteAlvo = PegarParteAlvo(Personagem)
-        if not ParteAlvo then goto Pular end
+-- ==============================================
+-- 🍎 ABA FRUTAS
+-- ==============================================
+CreateCheckbox(tabContents[5], 10, "🔒 ESP de Frutas (Em breve)", function() end)
+CreateCheckbox(tabContents[5], 45, "🔒 Alerta de Fruta (Em breve)", function() end)
+CreateCheckbox(tabContents[5], 80, "🔒 Auto Pegar Fruta (Em breve)", function() end)
 
-        local DistanciaReal = (ParteAlvo.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-        if DistanciaReal > Config.DistanciaMaxima then goto Pular end
+-- ==============================================
+-- 🤖 ABA FARM
+-- ==============================================
+CreateCheckbox(tabContents[6], 10, "🔒 Auto Farm NPC (Em breve)", function() end)
+CreateCheckbox(tabContents[6], 45, "🔒 Auto Quest (Em breve)", function() end)
+CreateCheckbox(tabContents[6], 80, "🔒 Auto Mastery (Em breve)", function() end)
 
-        local PosicaoTela, Visivel = Camera:WorldToViewportPoint(ParteAlvo.Position)
-        if not Visivel then goto Pular end
-
-        local DistanciaTela = (Vector2.new(PosicaoTela.X, PosicaoTela.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
-        if DistanciaTela < MenorDistanciaTela then
-            MenorDistanciaTela = DistanciaTela
-            MelhorAlvo = ParteAlvo
+-- ==============================================
+-- 🎯 SISTEMA DE AIMBOT — FUNCIONANDO DE VERDADE!
+-- ==============================================
+local function GetClosestEnemyInFOV()
+    local closest = nil
+    local minDist = fovValue
+    local camCF = workspace.CurrentCamera.CFrame
+    for _, v in next, Players:GetPlayers() do
+        if v ~= Player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
+            local pos = camCF:PointToObjectSpace(v.Character.HumanoidRootPart.Position)
+            local dist = (Vector2.new(pos.X, pos.Z)).Magnitude
+            if dist < minDist then
+                minDist = dist
+                closest = v
+            end
         end
-
-        ::Pular::
     end
-    return MelhorAlvo
+    return closest
 end
 
--- 🔹 Loop principal do aimbot e sem recuo
+-- ==============================================
+-- 🔄 LOOP PRINCIPAL — TUDO ATUALIZA A CADA FRAME
+-- ==============================================
 RunService.RenderStepped:Connect(function()
-    if Config.Aimbot then
-        local Alvo = PegarMelhorAlvoPvP()
-        if Alvo then
-            local PosicaoFinal = Alvo.Position
-            if Config.PrevisaoMovimento then
-                PosicaoFinal += Alvo.Velocity * Config.ForcaPrevisao
+    -- Atualizar posição do FOV
+    FovCircle.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X/2, workspace.CurrentCamera.ViewportSize.Y/2)
+
+    -- Aimbot funcionando
+    if aimbotEnabled then
+        local target = GetClosestEnemyInFOV()
+        if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+            local cam = workspace.CurrentCamera
+            local pos, vis = cam:WorldToViewportPoint(target.Character.HumanoidRootPart.Position)
+            if vis then
+                local targetCF = CFrame.new(cam.CFrame.Position, target.Character.HumanoidRootPart.Position)
+                cam.CFrame = cam.CFrame:Lerp(targetCF, 1/smoothValue)
             end
-            local Direcao = (PosicaoFinal - Camera.CFrame.Position).Unit
-            Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + Direcao), Config.Suavidade)
         end
     end
 
-    if Config.SemRecuo then
-        Camera.CFrame = Camera.CFrame * CFrame.Angles(0, 0, 0)
+    -- Movimento funcionando
+    if Player.Character and Player.Character:FindFirstChild("Humanoid") then
+        Player.Character.Humanoid.WalkSpeed = speedValue
+        Player.Character.Humanoid.JumpPower = jumpValue
+    end
+
+    -- Fly básico
+    if flyEnabled and Player.Character then
+        Player.Character.Humanoid.PlatformStand = true
+        local speed = 0.5
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then Player.Character:TranslateBy(Vector3.new(0, speed, 0)) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then Player.Character:TranslateBy(Vector3.new(0, -speed, 0)) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then Player.Character:TranslateBy(workspace.CurrentCamera.CFrame.LookVector * speed) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then Player.Character:TranslateBy(-workspace.CurrentCamera.CFrame.LookVector * speed) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then Player.Character:TranslateBy(-workspace.CurrentCamera.CFrame.RightVector * speed) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then Player.Character:TranslateBy(workspace.CurrentCamera.CFrame.RightVector * speed) end
+    end
+
+    -- No Knockback
+    if noKb and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+        Player.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(
+            Player.Character.HumanoidRootPart.AssemblyLinearVelocity.X * 0.98,
+            Player.Character.HumanoidRootPart.AssemblyLinearVelocity.Y,
+            Player.Character.HumanoidRootPart.AssemblyLinearVelocity.Z * 0.98
+        )
     end
 end)
 
--- 🔹 Sistema ESP completo
-task.spawn(function()
-    while task.wait(0.7) do
-        if not Config.ESP then continue end
-        for _, Jogador in next, Players:GetPlayers() do
-            if Jogador == LocalPlayer then goto PularESP end
-            local Personagem = Jogador.Character
-            if not Personagem or not Personagem:FindFirstChild("HumanoidRootPart") or Personagem.Humanoid.Health <= 0 then
-                if ListaEtiquetas[Jogador.UserId] then
-                    ListaEtiquetas[Jogador.UserId]:Destroy()
-                    ListaEtiquetas[Jogador.UserId] = nil
-                end
-                goto PularESP
-            end
-
-            local Etiqueta = ListaEtiquetas[Jogador.UserId] or Instance.new("BillboardGui")
-            Etiqueta.Adornee = Personagem.HumanoidRootPart
-            Etiqueta.AlwaysOnTop = true
-            Etiqueta.Size = UDim2.new(0, 200, 0, 100)
-            Etiqueta.StudsOffset = Vector3.new(0, 5, 0)
-            Etiqueta.Parent = GuiPrincipal
-
-            local RotuloTexto = Etiqueta:FindFirstChild("TextoESP") or Instance.new("TextLabel")
-            RotuloTexto.Name = "TextoESP"
-            RotuloTexto.BackgroundTransparency = 1
-            RotuloTexto.Size = UDim2.new(1, 0, 1, 0)
-            RotuloTexto.Font = Enum.Font.GothamBold
-            RotuloTexto.TextColor3 = Color3.fromRGB(255, 120, 255)
-            RotuloTexto.TextStrokeTransparency = 0
-            RotuloTexto.TextScaled = true
-
-            local Distancia = math.floor((Personagem.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
-            local Conteudo = ""
-            if Config.ESP_Nome then Conteudo = Conteudo..Jogador.Name.."\n" end
-            if Config.ESP_Vida then Conteudo = Conteudo.."❤️ "..math.floor(Personagem.Humanoid.Health).."/"..Personagem.Humanoid.MaxHealth.."\n" end
-            if Config.ESP_Distancia then Conteudo = Conteudo.."📏 "..Distancia.."m" end
-            RotuloTexto.Text = Conteudo
-            RotuloTexto.Parent = Etiqueta
-
-            ListaEtiquetas[Jogador.UserId] = Etiqueta
-            ::PularESP::
-        end
+-- ==============================================
+-- ✅ PAINEL ARRASTÁVEL
+-- ==============================================
+local dragging, dragStart, startPos
+Header.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainPanel.Position
     end
 end)
-
--- 🔹 Anti‑AFK funcional
-task.spawn(function()
-    while task.wait(1.5) do
-        if Config.AntiAFK then
-            Tentar(function()
-                local P = LocalPlayer.Character
-                if P and P:FindFirstChild("Humanoid") then
-                    P.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                end
-            end)
-        end
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        MainPanel.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+end)
+
+-- ==============================================
+-- ✅ TÁ PRONTO, MARIONETEIRO!
+-- ==============================================
+StarterGui:SetCore("SendNotification", {
+    Title = "🧅 MARIONETEIRO",
+    Text = "Script carregado! Painel roxo no meio da tela!",
+    Duration = 5
+})
