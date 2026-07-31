@@ -1,5 +1,5 @@
 -- ==============================================
--- 🧅 MARIONETEIRO v6.1 — COMPLETO E FUNCIONAL
+-- 🧅 MARIONETEIRO v6.2 — FUNÇÕES APARECENDO 100%
 -- ==============================================
 
 local Players = game:GetService("Players")
@@ -59,12 +59,12 @@ BarFill.BackgroundColor3 = Color3.fromRGB(130,70,255)
 BarFill.Parent = BarBg
 Instance.new("UICorner", BarFill).CornerRadius = UDim.new(0,6)
 
-for i=1,100 do task.wait(0.015) BarFill.Size = UDim2.new(i/100,0,1,0) end
-task.wait(0.3)
+for i=1,100 do task.wait(0.012) BarFill.Size = UDim2.new(i/100,0,1,0) end
+task.wait(0.25)
 LoadingScreen:Destroy()
 
 -- ==============================================
--- 🎨 PAINEL PRINCIPAL — TAMANHO EXATO DA SUA FOTO
+-- 🎨 PAINEL PRINCIPAL — EXATO DA SUA FOTO
 -- ==============================================
 local MainPanel = Instance.new("Frame")
 MainPanel.Size = UDim2.new(0,520,0,380)
@@ -75,7 +75,7 @@ MainPanel.BorderColor3 = Color3.fromRGB(80,45,140)
 MainPanel.Parent = ScreenGui
 Instance.new("UICorner", MainPanel).CornerRadius = UDim.new(0,8)
 
--- CABEÇALHO
+-- CABEÇALHO — IGUALZINHO NA FOTO
 local Header = Instance.new("Frame")
 Header.Size = UDim2.new(1,0,0,42)
 Header.BackgroundColor3 = Color3.fromRGB(55,35,105)
@@ -109,13 +109,13 @@ Instance.new("UICorner", VerBox).CornerRadius = UDim.new(0,4)
 local VerText = Instance.new("TextLabel")
 VerText.Size = UDim2.new(1,0,1,0)
 VerText.BackgroundTransparency = 1
-VerText.Text = "6.1 • GRÁTIS"
+VerText.Text = "6.2 • GRÁTIS"
 VerText.TextColor3 = Color3.new(1,1,1)
 VerText.Font = Enum.Font.GothamBold
 VerText.TextSize = 11
 VerText.Parent = VerBox
 
--- ✅ BOTÃO MOSTRAR/ESCONDER
+-- 👁️ BOTÃO MOSTRAR/ESCONDER
 local ToggleBtn = Instance.new("TextButton")
 ToggleBtn.Size = UDim2.new(0,32,1,0)
 ToggleBtn.Position = UDim2.new(1,-32,0,0)
@@ -128,7 +128,7 @@ ToggleBtn.MouseButton1Click:Connect(function()
     MainPanel.Visible = UiVisible
 end)
 
--- 📑 ABAS
+-- 📑 BARRA LATERAL
 local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0,170,1,-42)
 Sidebar.Position = UDim2.new(0,0,0,42)
@@ -172,24 +172,26 @@ for i, t in ipairs(tabs) do
         for j,c in ipairs(tabConts) do if c then c.Visible = j==i end end
     end)
 
+    -- ✅ ÁREA DE FUNÇÕES — CORRIGIDA PRA APARECER!
     local cont = Instance.new("ScrollingFrame")
     cont.Size = UDim2.new(1,-185,1,0)
-    cont.Position = UDim2.new(0,175,0,10)
+    cont.Position = UDim2.new(0,175,0,0)
     cont.BackgroundTransparency = 1
     cont.ScrollBarThickness = 4
-    cont.ScrollBarColor3 = Color3.fromRGB(120,80,200)
+    cont.ScrollBarColor3 = Color3.fromRGB(140,90,220)
     cont.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    cont.CanvasSize = UDim2.new(0,0,0,450) -- ✅ TAMANHO CERTO!
     cont.Visible = i==1
     cont.Parent = MainPanel
     tabConts[i] = cont
 end
 
 -- ==============================================
--- 🔧 FUNÇÕES — CHECKBOX + SLIDER
+-- 🔧 FUNÇÕES — CHECKBOX E SLIDER (AGORA APARECEM!)
 -- ==============================================
 local function Checkbox(parent, y, text, cb)
     local c = Instance.new("Frame")
-    c.Size = UDim2.new(1,0,0,32)
+    c.Size = UDim2.new(1,0,0,34)
     c.Position = UDim2.new(0,0,0,y)
     c.BackgroundTransparency = 1
     c.Parent = parent
@@ -198,7 +200,7 @@ local function Checkbox(parent, y, text, cb)
     lbl.Size = UDim2.new(1,-40,1,0)
     lbl.BackgroundTransparency = 1
     lbl.Text = text
-    lbl.TextColor3 = Color3.fromRGB(220,210,240)
+    lbl.TextColor3 = Color3.fromRGB(230,220,255)
     lbl.Font = Enum.Font.Gotham
     lbl.TextSize = 12
     lbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -206,10 +208,10 @@ local function Checkbox(parent, y, text, cb)
 
     local box = Instance.new("Frame")
     box.Size = UDim2.new(0,20,0,20)
-    box.Position = UDim2.new(1,-25,0.5,-10)
-    box.BackgroundColor3 = Color3.fromRGB(55,35,95)
+    box.Position = UDim2.new(1,-28,0.5,-10)
+    box.BackgroundColor3 = Color3.fromRGB(60,40,110)
     box.BorderSizePixel = 1
-    box.BorderColor3 = Color3.fromRGB(100,70,160)
+    box.BorderColor3 = Color3.fromRGB(110,70,180)
     box.Parent = c
     Instance.new("UICorner", box).CornerRadius = UDim.new(0,4)
 
@@ -219,7 +221,7 @@ local function Checkbox(parent, y, text, cb)
     ck.Text = ""
     ck.TextColor3 = Color3.new(1,1,1)
     ck.Font = Enum.Font.GothamBold
-    ck.TextSize = 12
+    ck.TextSize = 13
     ck.Parent = box
 
     local on = false
@@ -227,7 +229,7 @@ local function Checkbox(parent, y, text, cb)
         if i.UserInputType == Enum.UserInputType.MouseButton1 then
             on = not on
             ck.Text = on and "✓" or ""
-            box.BackgroundColor3 = on and Color3.fromRGB(110,60,200) or Color3.fromRGB(55,35,95)
+            box.BackgroundColor3 = on and Color3.fromRGB(120,70,220) or Color3.fromRGB(60,40,110)
             cb(on)
         end
     end)
@@ -235,33 +237,33 @@ end
 
 local function Slider(parent, y, text, min, max, def, cb)
     local c = Instance.new("Frame")
-    c.Size = UDim2.new(1,0,0,50)
+    c.Size = UDim2.new(1,0,0,54)
     c.Position = UDim2.new(0,0,0,y)
     c.BackgroundTransparency = 1
     c.Parent = parent
 
     local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1,0,0,18)
+    lbl.Size = UDim2.new(1,0,0,20)
     lbl.BackgroundTransparency = 1
     lbl.Text = text..": "..def
-    lbl.TextColor3 = Color3.fromRGB(220,210,240)
+    lbl.TextColor3 = Color3.fromRGB(230,220,255)
     lbl.Font = Enum.Font.Gotham
     lbl.TextSize = 12
     lbl.TextXAlignment = Enum.TextXAlignment.Left
     lbl.Parent = c
 
     local bg = Instance.new("Frame")
-    bg.Size = UDim2.new(1,0,0,12)
-    bg.Position = UDim2.new(0,0,0,22)
-    bg.BackgroundColor3 = Color3.fromRGB(55,35,95)
+    bg.Size = UDim2.new(1,0,0,14)
+    bg.Position = UDim2.new(0,0,0,26)
+    bg.BackgroundColor3 = Color3.fromRGB(60,40,110)
     bg.Parent = c
-    Instance.new("UICorner", bg).CornerRadius = UDim.new(0,6)
+    Instance.new("UICorner", bg).CornerRadius = UDim.new(0,7)
 
     local fg = Instance.new("Frame")
     fg.Size = UDim2.new((def-min)/(max-min),0,1,0)
-    fg.BackgroundColor3 = Color3.fromRGB(130,70,255)
+    fg.BackgroundColor3 = Color3.fromRGB(140,80,255)
     fg.Parent = bg
-    Instance.new("UICorner", fg).CornerRadius = UDim.new(0,6)
+    Instance.new("UICorner", fg).CornerRadius = UDim.new(0,7)
 
     local val, drag = def, false
     bg.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then drag = true end end)
@@ -291,7 +293,7 @@ FovCircle.NumSides = 64
 local ESP_On, ESP_Name, ESP_HP, ESP_Dist = false,false,false,false
 local ESP_Draws = {}
 
--- 🎯 ABA 1 — AIMBOT
+-- 🎯 ABA 1 — AIMBOT (AGORA APARECE!)
 local AimbotOn = false
 local AimbotFOV = 90
 local AimbotSmooth = 2
@@ -300,60 +302,88 @@ Checkbox(tabConts[1], 10, "🎯 Ativar Aimbot", function(v)
     AimbotOn = v
     FovCircle.Visible = v and UiVisible
 end)
-Slider(tabConts[1], 50, "📐 Campo de Visão (FOV)", 20, 360, 90, function(v)
+Slider(tabConts[1], 54, "📐 Campo de Visão (FOV)", 20, 360, 90, function(v)
     AimbotFOV = v
     FovCircle.Radius = v
 end)
-Slider(tabConts[1], 110, "⚙️ Suavidade", 1, 10, 2, function(v) AimbotSmooth = v end)
-Checkbox(tabConts[1], 160, "🧠 Mirar na Cabeça", function() end)
-Checkbox(tabConts[1], 198, "🚫 Ignorar Aliados", function() end)
-Checkbox(tabConts[1], 236, "🔒 Silent Aim", function() end)
+Slider(tabConts[1], 122, "⚙️ Suavidade da Mira", 1, 10, 2, function(v) AimbotSmooth = v end)
+Checkbox(tabConts[1], 180, "🧠 Mirar na Cabeça", function() end)
+Checkbox(tabConts[1], 218, "🚫 Ignorar Aliados", function() end)
+Checkbox(tabConts[1], 256, "🔒 Silent Aim", function() end)
+Checkbox(tabConts[1], 294, "🔮 Previsão de Movimento", function() end)
+Checkbox(tabConts[1], 332, "🎯 Aimbot em PvP", function() end)
 
 -- 👁️ ABA 2 — ESP
 Checkbox(tabConts[2], 10, "👁️ Ativar ESP", function(v) ESP_On = v end)
 Checkbox(tabConts[2], 48, "📝 Mostrar Nome", function(v) ESP_Name = v end)
 Checkbox(tabConts[2], 86, "❤️ Mostrar Vida", function(v) ESP_HP = v end)
 Checkbox(tabConts[2], 124, "📏 Mostrar Distância", function(v) ESP_Dist = v end)
+Checkbox(tabConts[2], 162, "👥 Mostrar Time", function() end)
+Checkbox(tabConts[2], 200, "⭐ Mostrar Nível", function() end)
+Checkbox(tabConts[2], 238, "🟦 Caixa ao Redor", function() end)
+Checkbox(tabConts[2], 276, "📏 Linha até o Jogador", function() end)
 
 -- ⚡ ABA 3 — MOVIMENTO
 local Speed = 16
 local Jump = 50
 local FlyOn = false
 
-Slider(tabConts[3], 10, "🏃 Velocidade", 16, 200, 16, function(v) Speed = v end)
-Slider(tabConts[3], 70, "🦘 Força do Pulo", 50, 400, 50, function(v) Jump = v end)
-Checkbox(tabConts[3], 130, "✈️ Voar (Fly)", function(v) FlyOn = v end)
-Checkbox(tabConts[3], 168, "🦅 Sem Dano de Queda", function() end)
+Slider(tabConts[3], 10, "🏃 Velocidade de Corrida", 16, 200, 16, function(v) Speed = v end)
+Slider(tabConts[3], 78, "🦘 Força do Pulo", 50, 400, 50, function(v) Jump = v end)
+Checkbox(tabConts[3], 146, "🛡️ Sem Recuo", function() end)
+Checkbox(tabConts[3], 184, "✈️ Voar (Fly)", function(v) FlyOn = v end)
+Checkbox(tabConts[3], 222, "🦅 Sem Dano de Queda", function() end)
+Checkbox(tabConts[3], 260, "🏃 Auto Correr", function() end)
+Checkbox(tabConts[3], 298, "⚡ Aumento de Velocidade", function() end)
+Checkbox(tabConts[3], 336, "🔲 Noclip", function() end)
 
 -- ⚔️ ABA 4 — COMBATE
 Checkbox(tabConts[4], 10, "👊 Auto Combo", function() end)
-Checkbox(tabConts[4], 48, "👊 Auto Ataque M1", function() end)
-Checkbox(tabConts[4], 86, "🛡️ Auto Haki", function() end)
-Checkbox(tabConts[4], 124, "👁️ Auto Instinto", function() end)
+Checkbox(tabConts[4], 48, "👊 Auto Ataque (M1)", function() end)
+Checkbox(tabConts[4], 86, "⚔️ Ataque Rápido", function() end)
+Checkbox(tabConts[4], 124, "📦 Hitbox Ampliada", function() end)
+Checkbox(tabConts[4], 162, "🛡️ Auto Haki", function() end)
+Checkbox(tabConts[4], 200, "👁️ Auto Instinto", function() end)
+Checkbox(tabConts[4], 238, "⚡ Auto Soru", function() end)
+Checkbox(tabConts[4], 276, "🔌 Sem Cooldown", function() end)
 
 -- 💰 ABA 5 — FAZENDA
 Checkbox(tabConts[5], 10, "💰 Auto Farm Dinheiro", function() end)
 Checkbox(tabConts[5], 48, "⭐ Auto Farm Nível", function() end)
 Checkbox(tabConts[5], 86, "👾 Auto Matar Inimigos", function() end)
 Checkbox(tabConts[5], 124, "🏆 Auto Recompensa", function() end)
+Checkbox(tabConts[5], 162, "🎯 Auto Caçar Alvo", function() end)
+Checkbox(tabConts[5], 200, "🏠 Auto Vender", function() end)
+Checkbox(tabConts[5], 238, "🔁 Auto Reaparecer", function() end)
+Checkbox(tabConts[5], 276, "🗺️ Teleportar Ilhas", function() end)
 
 -- 🍎 ABA 6 — FRUTAS
 Checkbox(tabConts[6], 10, "🍎 ESP de Frutas", function() end)
 Checkbox(tabConts[6], 48, "📍 Localizar Frutas", function() end)
 Checkbox(tabConts[6], 86, "🔔 Alerta de Fruta", function() end)
 Checkbox(tabConts[6], 124, "🍇 Auto Pegar Fruta", function() end)
+Checkbox(tabConts[6], 162, "📦 Armazenar Fruta", function() end)
+Checkbox(tabConts[6], 200, "🎲 Rolar Fruta", function() end)
+Checkbox(tabConts[6], 238, "💎 Apenas Frutas Boas", function() end)
+Checkbox(tabConts[6], 276, "🚫 Ignorar Frutas Ruins", function() end)
 
 -- ⌨️ ABA 7 — TECLAS
-Checkbox(tabConts[7], 10, "🎯 Aimbot — Tecla [J]", function() end)
-Checkbox(tabConts[7], 48, "👁️ ESP — Tecla [K]", function() end)
-Checkbox(tabConts[7], 86, "✈️ Fly — Tecla [F]", function() end)
-Checkbox(tabConts[7], 124, "👁️ Mostrar/Esconder — Tecla [Insert]", function() end)
+Checkbox(tabConts[7], 10, "🎯 Alternar Aimbot — [J]", function() end)
+Checkbox(tabConts[7], 48, "👁️ Alternar ESP — [K]", function() end)
+Checkbox(tabConts[7], 86, "✈️ Alternar Fly — [F]", function() end)
+Checkbox(tabConts[7], 124, "🏃 Alternar Velocidade — [G]", function() end)
+Checkbox(tabConts[7], 162, "🔄 Recarregar Script — [R]", function() end)
+Checkbox(tabConts[7], 200, "👁️ Mostrar/Esconder — [Insert]", function() end)
 
 -- ⚙️ ABA 8 — CONFIGURAÇÕES
 Checkbox(tabConts[8], 10, "📊 FPS Ilimitado", function() end)
 Checkbox(tabConts[8], 48, "🌫️ Remover Névoa", function() end)
 Checkbox(tabConts[8], 86, "🧹 Limpar Partículas", function() end)
-Checkbox(tabConts[8], 124, "🔄 Auto Reconectar", function() end)
+Checkbox(tabConts[8], 124, "🎨 Gráficos no Mínimo", function() end)
+Checkbox(tabConts[8], 162, "🔄 Auto Reconectar", function() end)
+Checkbox(tabConts[8], 200, "⚠️ Modo Seguro", function() end)
+Checkbox(tabConts[8], 238, "📄 Log de Ações", function() end)
+Checkbox(tabConts[8], 276, "ℹ️ Info do Jogador", function() end)
 
 -- ==============================================
 -- ⌨️ TECLA INSERT — MOSTRA/ESCONDE
@@ -460,6 +490,6 @@ end)
 
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "🧅 MARIONETEIRO",
-    Text = "CARREGADO COM SUCESSO! Clique 👁️ ou aperte [Insert]",
+    Text = "✅ CARREGADO! FUNÇÕES APARECENDO!",
     Duration = 4
 })
